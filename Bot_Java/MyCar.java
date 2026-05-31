@@ -1,4 +1,7 @@
 import DrivingInterface.*;
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MyCar {
 
@@ -110,6 +113,13 @@ public class MyCar {
     private boolean trackInitialized = false;
     private int trackType = TRACK_BASIC;
 
+    // --- Lap logger ---
+    private PrintWriter logWriter = null;
+    private long lapStartTime = 0;
+    private float lastProgress = 0f;
+    private int lapCount = 0;
+    private int tickCount = 0;
+
     public void control_driving(boolean a1, float a2, float a3, float a4, float a5, float a6, float a7, float a8,
                                 float[] a9, float[] a10, float[] a11, float[] a12) {
 
@@ -191,6 +201,38 @@ public class MyCar {
         if(is_debug) {
             System.out.println("[MyCar] steering:"+car_controls.steering+
                                      ", throttle:"+car_controls.throttle+", brake:"+car_controls.brake);
+        }
+
+        // --- Lap logging ---
+        if (logWriter == null) {
+            try {
+                new File("logs").mkdirs();
+                String ts = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+                logWriter = new PrintWriter(new FileWriter("logs/run_" + ts + ".csv"));
+                logWriter.println("tick,lap,progress,speed,to_middle,moving_angle,steering,throttle,brake,collided,elapsed_ms");
+                lapStartTime = System.currentTimeMillis();
+            } catch (IOException e) {
+                System.out.println("[LOG] Cannot open log: " + e.getMessage());
+            }
+        }
+        if (logWriter != null) {
+            tickCount++;
+            long elapsed = System.currentTimeMillis() - lapStartTime;
+            logWriter.printf("%d,%d,%.1f,%.1f,%.3f,%.1f,%.3f,%.3f,%.3f,%b,%d%n",
+                tickCount, lapCount + 1,
+                sensing_info.lap_progress, sensing_info.speed,
+                sensing_info.to_middle, sensing_info.moving_angle,
+                car_controls.steering, car_controls.throttle, car_controls.brake,
+                sensing_info.collided, elapsed);
+            logWriter.flush();
+
+            if (lastProgress > 90f && sensing_info.lap_progress < 10f) {
+                lapCount++;
+                logWriter.printf("# LAP %d COMPLETE: %.2fs%n", lapCount, elapsed / 1000.0);
+                System.out.printf("[LOG] Lap %d: %.2fs%n", lapCount, elapsed / 1000.0);
+                lapStartTime = System.currentTimeMillis();
+            }
+            lastProgress = sensing_info.lap_progress;
         }
 
         //
