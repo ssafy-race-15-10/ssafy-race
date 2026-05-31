@@ -94,16 +94,24 @@ ssafy-race/
 ├── docs/
 │   ├── 싸피레이스_Quick+Start_20260515.pdf
 │   └── 싸피레이스_상세가이드_20260515.pdf
-├── settings/              # pre-made settings.json per map
-│   ├── map10_basic.json
-│   ├── map30_speed_no_obstacle.json
-│   ├── map31_speed.json
-│   ├── map60_ssafy_no_obstacle.json
-│   ├── map61_ssafy.json
-│   ├── map70_ssafy_lowspec_no_obstacle.json
-│   ├── map71_ssafy_lowspec_local.json
-│   ├── map160_germany_no_obstacle.json
-│   └── map161_germany.json
+├── settings/              # settings.json presets per map
+│   ├── settings.json                        # default (Map 10, BGM on)
+│   ├── settings_타임어택-베이직.json         # Map 10  — competition
+│   ├── settings_타임어택-스피드.json         # Map 31  — competition
+│   ├── settings_타임어택-싸피.json           # Map 61  — competition
+│   ├── settings_타임어택-싸피_저사양.json    # Map 71  — local PC
+│   ├── settings_타임어택-독일.json           # Map 161 — competition
+│   ├── settings_배틀-싸피.json              # Map 61  — multiplayer
+│   ├── settings_배틀-싸피_저사양.json       # Map 71  — multiplayer local
+│   ├── map10_basic.json                     # Map 10  — no BGM
+│   ├── map30_speed_no_obstacle.json         # Map 30  — practice
+│   ├── map31_speed.json                     # Map 31  — no BGM
+│   ├── map60_ssafy_no_obstacle.json         # Map 60  — practice
+│   ├── map61_ssafy.json                     # Map 61  — no BGM
+│   ├── map70_ssafy_lowspec_no_obstacle.json # Map 70  — practice
+│   ├── map71_ssafy_lowspec_local.json       # Map 71  — no BGM
+│   ├── map160_germany_no_obstacle.json      # Map 160 — practice
+│   └── map161_germany.json                  # Map 161 — no BGM
 └── Bot_Java/
     ├── DrivingInterface/
     │   ├── DrivingInterface.java
