@@ -253,7 +253,7 @@ public class MyCar {
 
     static {
         try {
-            System.loadLibrary("DrivingInterface/DrivingInterface");
+            System.load(new File("DrivingInterface/DrivingInterface.dll").getAbsolutePath());
         } catch (UnsatisfiedLinkError e) {
             System.out.println("[MyCar] Test mode: native library not loaded");
         }
