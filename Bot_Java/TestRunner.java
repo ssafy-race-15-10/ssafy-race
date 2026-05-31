@@ -1,9 +1,12 @@
+import DrivingInterface.*;
+
 public class TestRunner {
     public static void main(String[] args) {
         testTrackParams();
         testTrackDetection();
         testSteering();
         testSpeed();
+        testObstacleHandler();
         System.out.println("TestRunner ready. Add test calls here.");
     }
 
@@ -115,6 +118,44 @@ public class TestRunner {
         System.out.println("  extreme curve target:  " + t3);
 
         System.out.println("PASS: speed control");
+    }
+
+    static void testObstacleHandler() {
+        float maxSpeed = 130f;
+
+        // No obstacles → cap equals maxSpeed
+        java.util.ArrayList<DrivingInterface.ObstaclesInfo> none = new java.util.ArrayList<>();
+        float c1 = MyCar.computeObstacleSpeedCap(none, maxSpeed);
+        assertTrue(c1 == maxSpeed, "No obstacles: cap should equal maxSpeed, got: " + c1);
+
+        // Obstacle at exactly 40m → no reduction (proximity = 0)
+        java.util.ArrayList<DrivingInterface.ObstaclesInfo> far = new java.util.ArrayList<>();
+        DrivingInterface.ObstaclesInfo o1 = new DrivingInterface.ObstaclesInfo();
+        o1.dist = 40f; o1.to_middle = 0f;
+        far.add(o1);
+        float c2 = MyCar.computeObstacleSpeedCap(far, maxSpeed);
+        assertTrue(Math.abs(c2 - maxSpeed) < 0.01f,
+                   "Obstacle at 40m: cap should equal maxSpeed, got: " + c2);
+
+        // Obstacle at 0m → cap = maxSpeed * (1 - 0.4) = 78.0
+        java.util.ArrayList<DrivingInterface.ObstaclesInfo> contact = new java.util.ArrayList<>();
+        DrivingInterface.ObstaclesInfo o2 = new DrivingInterface.ObstaclesInfo();
+        o2.dist = 0f; o2.to_middle = 0f;
+        contact.add(o2);
+        float c3 = MyCar.computeObstacleSpeedCap(contact, maxSpeed);
+        assertTrue(Math.abs(c3 - 78f) < 0.01f,
+                   "Obstacle at 0m: cap should be 78.0, got: " + c3);
+
+        // Obstacle at 20m → proximity=0.5, cap = 130*(1-0.4*0.5) = 130*0.8 = 104.0
+        java.util.ArrayList<DrivingInterface.ObstaclesInfo> mid = new java.util.ArrayList<>();
+        DrivingInterface.ObstaclesInfo o3 = new DrivingInterface.ObstaclesInfo();
+        o3.dist = 20f; o3.to_middle = 0f;
+        mid.add(o3);
+        float c4 = MyCar.computeObstacleSpeedCap(mid, maxSpeed);
+        assertTrue(Math.abs(c4 - 104f) < 0.01f,
+                   "Obstacle at 20m: cap should be 104.0, got: " + c4);
+
+        System.out.println("PASS: obstacle speed cap");
     }
 
     static void assertTrue(boolean condition, String message) {

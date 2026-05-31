@@ -84,8 +84,7 @@ public class MyCar {
         return clamp(p.maxSpeed - p.slowdownFactor * maxCurve, p.minSpeed, p.maxSpeed);
     }
 
-    static void applySpeedControl(float currentSpeed, float[] angles, TrackParams p) {
-        float targetSpeed = computeTargetSpeed(angles, p);
+    static void applySpeedControl(float currentSpeed, float targetSpeed, TrackParams p) {
         float diff = targetSpeed - currentSpeed;
         if (diff > 0) {
             car_controls.throttle = Math.min(1.0f, diff / p.accelerationRange);
@@ -113,6 +112,17 @@ public class MyCar {
             avoidSteer -= proximity * lateral * 1.2f;          // steer opposite side
         }
         return clamp(avoidSteer, -1.0f, 1.0f);
+    }
+
+    static float computeObstacleSpeedCap(java.util.ArrayList<DrivingInterface.ObstaclesInfo> obstacles,
+                                         float maxSpeed) {
+        float nearestDist = Float.MAX_VALUE;
+        for (DrivingInterface.ObstaclesInfo obs : obstacles) {
+            if (obs.dist < nearestDist) nearestDist = obs.dist;
+        }
+        if (nearestDist >= 40f) return maxSpeed;
+        float proximity = 1.0f - (nearestDist / 40f);
+        return maxSpeed * (1.0f - 0.4f * proximity);
     }
 
     // --- Track detection helper ---
@@ -215,7 +225,9 @@ public class MyCar {
                                                     sensing_info.half_road_limit);
         car_controls.steering = clamp(car_controls.steering + avoidSteer, -1.0f, 1.0f);
 
-        applySpeedControl(sensing_info.speed, angles, p);
+        float speedCap    = computeObstacleSpeedCap(sensing_info.track_forward_obstacles, p.maxSpeed);
+        float targetSpeed = Math.min(computeTargetSpeed(angles, p), speedCap);
+        applySpeedControl(sensing_info.speed, targetSpeed, p);
 
         // Collision recovery: brake hard for 20 ticks (~2s) after impact
         if (sensing_info.collided) recoveryTicks = 20;
