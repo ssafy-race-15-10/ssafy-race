@@ -252,20 +252,25 @@ public class MyCar {
     float brake;
 
     static {
-        try {
-            File dll = new File("DrivingInterface/DrivingInterface.dll");
-            System.out.println("[DLL] Working dir : " + new File(".").getAbsolutePath());
-            System.out.println("[DLL] DLL path    : " + dll.getAbsolutePath());
-            System.out.println("[DLL] DLL exists  : " + dll.exists());
+        String[] candidates = {
+            "DrivingInterface/DrivingInterface.dll",
+            "Bot_Java/DrivingInterface/DrivingInterface.dll"
+        };
+        boolean loaded = false;
+        for (String path : candidates) {
+            File dll = new File(path);
             if (dll.exists()) {
-                System.load(dll.getAbsolutePath());
-                System.out.println("[DLL] Loaded OK");
-            } else {
-                System.out.println("[DLL] File not found — test mode");
+                try {
+                    System.load(dll.getAbsolutePath());
+                    System.out.println("[DLL] Loaded: " + dll.getAbsolutePath());
+                    loaded = true;
+                } catch (UnsatisfiedLinkError e) {
+                    System.out.println("[DLL] Load failed: " + e.getMessage());
+                }
+                break;
             }
-        } catch (UnsatisfiedLinkError e) {
-            System.out.println("[DLL] Load failed : " + e.getMessage());
         }
+        if (!loaded) System.out.println("[DLL] Test mode: DLL not found");
     }
 
     public static void main(String[] args) {
