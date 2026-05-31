@@ -20,11 +20,13 @@ public class MyCar {
         final float K1, K2, K3, decayFactor;
         final float accelerationRange, brakeRange;
         final int steerLookAhead, speedLookAhead;
+        final float K4, alpha;
 
         TrackParams(float maxSpeed, float minSpeed, float slowdownFactor,
                     int steerLookAhead, int speedLookAhead,
                     float K1, float K2, float K3, float decayFactor,
-                    float accelerationRange, float brakeRange) {
+                    float accelerationRange, float brakeRange,
+                    float K4, float alpha) {
             this.maxSpeed          = maxSpeed;
             this.minSpeed          = minSpeed;
             this.slowdownFactor    = slowdownFactor;
@@ -36,18 +38,20 @@ public class MyCar {
             this.decayFactor       = decayFactor;
             this.accelerationRange = accelerationRange;
             this.brakeRange        = brakeRange;
+            this.K4                = K4;
+            this.alpha             = alpha;
         }
     }
 
     static final TrackParams[] PARAMS = {
-        // BASIC:   maxSpd minSpd slow  steerLA speedLA K1    K2    K3    decay  accR  brkR
-        new TrackParams(130, 40, 0.8f,  5,  6, 0.3f, 0.4f, 0.3f, 0.4f, 30, 40),
+        // BASIC:  maxSpd minSpd slow  stLA spLA  K1     K2     K3     decay  accR  brkR   K4     alpha
+        new TrackParams(130, 40, 0.8f,  5,  6, 0.45f, 0.20f, 0.35f, 0.4f, 30, 40, 0.25f, 0.40f),
         // SPEED
-        new TrackParams(120, 35, 0.9f,  6,  7, 0.3f, 0.4f, 0.3f, 0.4f, 30, 40),
+        new TrackParams(120, 35, 0.9f,  6,  7, 0.45f, 0.20f, 0.35f, 0.4f, 30, 40, 0.25f, 0.40f),
         // SSAFY
-        new TrackParams(110, 30, 1.0f,  7,  8, 0.4f, 0.5f, 0.3f, 0.3f, 25, 35),
+        new TrackParams(110, 30, 1.0f,  7,  8, 0.50f, 0.25f, 0.35f, 0.3f, 25, 35, 0.25f, 0.40f),
         // GERMANY
-        new TrackParams(100, 25, 1.2f,  8, 10, 0.5f, 0.6f, 0.4f, 0.5f, 20, 30)
+        new TrackParams(100, 25, 1.2f,  8, 10, 0.55f, 0.25f, 0.40f, 0.5f, 20, 30, 0.30f, 0.35f)
     };
 
     // --- Steering helpers ---

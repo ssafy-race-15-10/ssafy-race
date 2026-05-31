@@ -13,32 +13,40 @@ public class TestRunner {
 
     static void testTrackParams() {
         MyCar.TrackParams basic = MyCar.PARAMS[MyCar.TRACK_BASIC];
-        assertTrue(basic.maxSpeed == 130f,       "BASIC maxSpeed");
-        assertTrue(basic.minSpeed == 40f,        "BASIC minSpeed");
-        assertTrue(basic.slowdownFactor == 0.8f, "BASIC slowdownFactor");
-        assertTrue(basic.steerLookAhead == 5,    "BASIC steerLookAhead");
-        assertTrue(basic.speedLookAhead == 6,    "BASIC speedLookAhead");
-        assertTrue(basic.K1 == 0.3f,            "BASIC K1");
-        assertTrue(basic.brakeRange == 40f,      "BASIC brakeRange");
+        assertTrue(basic.maxSpeed == 130f,        "BASIC maxSpeed");
+        assertTrue(basic.minSpeed == 40f,         "BASIC minSpeed");
+        assertTrue(basic.slowdownFactor == 0.8f,  "BASIC slowdownFactor");
+        assertTrue(basic.steerLookAhead == 5,     "BASIC steerLookAhead");
+        assertTrue(basic.speedLookAhead == 6,     "BASIC speedLookAhead");
+        assertTrue(basic.K1 == 0.45f,            "BASIC K1");
+        assertTrue(basic.K4 == 0.25f,            "BASIC K4");
+        assertTrue(basic.alpha == 0.40f,         "BASIC alpha");
+        assertTrue(basic.brakeRange == 40f,       "BASIC brakeRange");
 
         MyCar.TrackParams speed = MyCar.PARAMS[MyCar.TRACK_SPEED];
-        assertTrue(speed.maxSpeed == 120f,       "SPEED maxSpeed");
-        assertTrue(speed.slowdownFactor == 0.9f, "SPEED slowdownFactor");
-        assertTrue(speed.steerLookAhead == 6,    "SPEED steerLookAhead");
-        assertTrue(speed.K2 == 0.4f,            "SPEED K2");
+        assertTrue(speed.maxSpeed == 120f,        "SPEED maxSpeed");
+        assertTrue(speed.slowdownFactor == 0.9f,  "SPEED slowdownFactor");
+        assertTrue(speed.steerLookAhead == 6,     "SPEED steerLookAhead");
+        assertTrue(speed.K2 == 0.20f,            "SPEED K2");
+        assertTrue(speed.K4 == 0.25f,            "SPEED K4");
+        assertTrue(speed.alpha == 0.40f,         "SPEED alpha");
 
         MyCar.TrackParams ssafy = MyCar.PARAMS[MyCar.TRACK_SSAFY];
-        assertTrue(ssafy.maxSpeed == 110f,       "SSAFY maxSpeed");
-        assertTrue(ssafy.slowdownFactor == 1.0f, "SSAFY slowdownFactor");
-        assertTrue(ssafy.decayFactor == 0.3f,   "SSAFY decayFactor");
-        assertTrue(ssafy.accelerationRange == 25f, "SSAFY accelerationRange");
+        assertTrue(ssafy.maxSpeed == 110f,        "SSAFY maxSpeed");
+        assertTrue(ssafy.slowdownFactor == 1.0f,  "SSAFY slowdownFactor");
+        assertTrue(ssafy.decayFactor == 0.3f,    "SSAFY decayFactor");
+        assertTrue(ssafy.accelerationRange == 25f,"SSAFY accelerationRange");
+        assertTrue(ssafy.K4 == 0.25f,           "SSAFY K4");
+        assertTrue(ssafy.alpha == 0.40f,        "SSAFY alpha");
 
         MyCar.TrackParams germany = MyCar.PARAMS[MyCar.TRACK_GERMANY];
-        assertTrue(germany.maxSpeed == 100f,       "GERMANY maxSpeed");
-        assertTrue(germany.steerLookAhead == 8,    "GERMANY steerLookAhead");
-        assertTrue(germany.speedLookAhead == 10,   "GERMANY speedLookAhead");
-        assertTrue(germany.K3 == 0.4f,            "GERMANY K3");
-        assertTrue(germany.brakeRange == 30f,      "GERMANY brakeRange");
+        assertTrue(germany.maxSpeed == 100f,      "GERMANY maxSpeed");
+        assertTrue(germany.steerLookAhead == 8,   "GERMANY steerLookAhead");
+        assertTrue(germany.speedLookAhead == 10,  "GERMANY speedLookAhead");
+        assertTrue(germany.K3 == 0.40f,          "GERMANY K3");
+        assertTrue(germany.brakeRange == 30f,     "GERMANY brakeRange");
+        assertTrue(germany.K4 == 0.30f,          "GERMANY K4");
+        assertTrue(germany.alpha == 0.35f,       "GERMANY alpha");
 
         System.out.println("PASS: TrackParams");
     }
