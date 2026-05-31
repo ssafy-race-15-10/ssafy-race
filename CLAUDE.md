@@ -53,14 +53,17 @@ When the car goes off-road, the simulator automatically sets brake = 0.9.
 
 ## Tracks
 
-| Map ID | Name | Road Width | Length | Use |
-|--------|------|-----------|--------|-----|
-| 10 | Basic Round | 16m | 1,360m | Competition (no obstacles) |
-| 31 | Speed Racing | 16m | 1,860m | Competition |
-| 61 | SSAFY Track | 22m | 5,910m | Competition |
-| 71 | SSAFY Track (low-spec) | 22m | 5,910m | Competition |
-| 161 | Germany Track | 14m | 4,574m | Competition |
-| 30/60/70/160 | Obstacle-free variants | — | — | Practice |
+| Map ID | Name | Road Width | Length | Obstacles | Use |
+|--------|------|-----------|--------|-----------|-----|
+| 10 | Basic Round | 16m | 1,360m | No | Competition |
+| 30 | Speed Racing | 16m | 1,860m | No | Practice |
+| 31 | Speed Racing | 16m | 1,860m | Yes | Competition |
+| 60 | SSAFY Track | 22m | 5,910m | No | Practice |
+| 61 | SSAFY Track | 22m | 5,910m | Yes | Competition |
+| 70 | SSAFY Track (low-spec) | 22m | 5,910m | No | Practice |
+| 71 | SSAFY Track (low-spec) | 22m | 5,910m | Yes | Personal local PC |
+| 160 | Germany Track | 14m | 4,574m | No | Practice |
+| 161 | Germany Track | 14m | 4,574m | Yes | Competition |
 
 ## Running the Simulator
 
@@ -91,13 +94,25 @@ ssafy-race/
 ├── docs/
 │   ├── 싸피레이스_Quick+Start_20260515.pdf
 │   └── 싸피레이스_상세가이드_20260515.pdf
-└── bot_java/              # place downloaded template here
-    ├── DrivingInterface.java
-    ├── DrivingInterface.dll
-    └── MyCar.java         # develop and submit this file
+├── settings/              # pre-made settings.json per map
+│   ├── map10_basic.json
+│   ├── map30_speed_no_obstacle.json
+│   ├── map31_speed.json
+│   ├── map60_ssafy_no_obstacle.json
+│   ├── map61_ssafy.json
+│   ├── map70_ssafy_lowspec_no_obstacle.json
+│   ├── map71_ssafy_lowspec_local.json
+│   ├── map160_germany_no_obstacle.json
+│   └── map161_germany.json
+└── Bot_Java/
+    ├── DrivingInterface/
+    │   ├── DrivingInterface.java
+    │   └── DrivingInterface.dll
+    ├── MyCar.java         # develop and submit this file
+    └── TestRunner.java    # local unit test harness (not submitted)
 ```
 
-Bot template: download separately from the competition board.
+To use a settings file: copy its contents into `C:\Users\{username}\Documents\AirSim\settings.json` and restart the simulator.
 
 ## Environment
 
