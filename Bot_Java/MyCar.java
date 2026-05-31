@@ -167,10 +167,26 @@ public class MyCar {
         // Editing area starts from here
         //
 
-        // Moving straight forward
-        car_controls.steering = 0;
-        car_controls.throttle = 1;
-        car_controls.brake = 0;
+        // Track detection: once on first call, upgrade Basic→Speed on first obstacle
+        if (!trackInitialized) {
+            trackType = detectTrackType(sensing_info.half_road_limit);
+            trackInitialized = true;
+        }
+        if (trackType == TRACK_BASIC && !sensing_info.track_forward_obstacles.isEmpty()) {
+            trackType = TRACK_SPEED;
+        }
+
+        TrackParams p = PARAMS[trackType];
+        float[] angles = toFloatArray(sensing_info.track_forward_angles);
+
+        car_controls.steering = computeSteering(
+            sensing_info.to_middle,
+            sensing_info.half_road_limit,
+            sensing_info.moving_angle,
+            angles, p
+        );
+
+        applySpeedControl(sensing_info.speed, angles, p);
 
         if(is_debug) {
             System.out.println("[MyCar] steering:"+car_controls.steering+
