@@ -11,10 +11,41 @@ public class MyCar {
     static final int TRACK_SSAFY   = 2;
     static final int TRACK_GERMANY = 3;
 
-    // --- TrackParams inner class (populated in Task 2) ---
+    // --- TrackParams inner class ---
     static class TrackParams {
-        // fields added in Task 2
+        final float maxSpeed, minSpeed, slowdownFactor;
+        final float K1, K2, K3, decayFactor;
+        final float accelerationRange, brakeRange;
+        final int steerLookAhead, speedLookAhead;
+
+        TrackParams(float maxSpeed, float minSpeed, float slowdownFactor,
+                    int steerLookAhead, int speedLookAhead,
+                    float K1, float K2, float K3, float decayFactor,
+                    float accelerationRange, float brakeRange) {
+            this.maxSpeed          = maxSpeed;
+            this.minSpeed          = minSpeed;
+            this.slowdownFactor    = slowdownFactor;
+            this.steerLookAhead    = steerLookAhead;
+            this.speedLookAhead    = speedLookAhead;
+            this.K1                = K1;
+            this.K2                = K2;
+            this.K3                = K3;
+            this.decayFactor       = decayFactor;
+            this.accelerationRange = accelerationRange;
+            this.brakeRange        = brakeRange;
+        }
     }
+
+    static final TrackParams[] PARAMS = {
+        // BASIC:   maxSpd minSpd slow  steerLA speedLA K1    K2    K3    decay  accR  brkR
+        new TrackParams(130, 40, 0.8f,  5,  6, 0.3f, 0.4f, 0.3f, 0.4f, 30, 40),
+        // SPEED
+        new TrackParams(120, 35, 0.9f,  6,  7, 0.3f, 0.4f, 0.3f, 0.4f, 30, 40),
+        // SSAFY
+        new TrackParams(110, 30, 1.0f,  7,  8, 0.4f, 0.5f, 0.3f, 0.3f, 25, 35),
+        // GERMANY
+        new TrackParams(100, 25, 1.2f,  8, 10, 0.5f, 0.6f, 0.4f, 0.5f, 20, 30)
+    };
 
     // --- State ---
     private boolean trackInitialized = false;
