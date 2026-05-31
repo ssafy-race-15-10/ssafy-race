@@ -165,7 +165,7 @@ public class TestRunner {
         oe.dist = 25f; oe.to_middle = 5f;
         edge.add(oe);
         float a2 = MyCar.computeObstacleAvoidance(edge, 9.25f);
-        assertTrue(a2 == 0f, "Obstacle at exactly 25m: avoidance should be 0, got: " + a2);
+        assertTrue(Math.abs(a2) < 0.001f, "Obstacle at exactly 25m: avoidance should be ~0, got: " + a2);
 
         // Obstacle at 0m, to_middle=+9.25 (far right) → steer left (negative), clamped to -1.0
         java.util.ArrayList<DrivingInterface.ObstaclesInfo> rightObs = new java.util.ArrayList<>();

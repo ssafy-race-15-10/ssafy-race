@@ -126,11 +126,8 @@ public class MyCar {
 
     static float computeObstacleSpeedCap(java.util.ArrayList<DrivingInterface.ObstaclesInfo> obstacles,
                                          float maxSpeed) {
-        float nearestDist = Float.MAX_VALUE;
-        for (DrivingInterface.ObstaclesInfo obs : obstacles) {
-            if (obs.dist < nearestDist) nearestDist = obs.dist;
-        }
-        if (nearestDist >= 40f) return maxSpeed;
+        float nearestDist = nearestObstacleDist(obstacles);
+        if (nearestDist < 0f || nearestDist >= 40f) return maxSpeed;
         float proximity = 1.0f - (nearestDist / 40f);
         return maxSpeed * (1.0f - 0.4f * proximity);
     }
