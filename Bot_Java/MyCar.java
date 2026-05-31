@@ -286,16 +286,20 @@ public class MyCar {
         // --- Lap logging ---
         if (logWriter == null) {
             try {
-                new File("logs").mkdirs();
+                File logsDir = new File("logs");
+                if (!logsDir.exists()) logsDir = new File("Bot_Java/logs");
+                logsDir.mkdirs();
                 String ts = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-                logWriter = new PrintWriter(new FileWriter("logs/run_" + ts + ".csv"));
+                File logFile = new File(logsDir, "run_" + ts + ".csv");
+                logWriter = new PrintWriter(new FileWriter(logFile));
                 logWriter.println("tick,lap,progress,speed,to_middle,moving_angle," +
                                   "steering,throttle,brake,collided," +
                                   "obs_count,obs_nearest_dist,target_speed," +
                                   "stuck_ticks,reverse_ticks,elapsed_ms");
                 lapStartTime = System.currentTimeMillis();
+                System.out.println("[LOG] Writing to: " + logFile.getAbsolutePath());
             } catch (IOException e) {
-                // log init failed silently
+                System.out.println("[LOG] Failed to open log: " + e.getMessage());
             }
         }
         if (logWriter != null) {
