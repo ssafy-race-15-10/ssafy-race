@@ -47,6 +47,13 @@ public class MyCar {
         new TrackParams(100, 25, 1.2f,  8, 10, 0.5f, 0.6f, 0.4f, 0.5f, 20, 30)
     };
 
+    // --- Track detection helper ---
+    static int detectTrackType(float halfRoadLimit) {
+        if (halfRoadLimit > 11.0f) return TRACK_SSAFY;
+        if (halfRoadLimit < 9.0f)  return TRACK_GERMANY;
+        return TRACK_BASIC;
+    }
+
     // --- State ---
     private boolean trackInitialized = false;
     private int trackType = TRACK_BASIC;

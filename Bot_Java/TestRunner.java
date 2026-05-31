@@ -1,6 +1,7 @@
 public class TestRunner {
     public static void main(String[] args) {
         testTrackParams();
+        testTrackDetection();
         System.out.println("TestRunner ready. Add test calls here.");
     }
 
@@ -34,6 +35,20 @@ public class TestRunner {
         assertTrue(germany.brakeRange == 30f,      "GERMANY brakeRange");
 
         System.out.println("PASS: TrackParams");
+    }
+
+    static void testTrackDetection() {
+        assertTrue(MyCar.detectTrackType(12.25f) == MyCar.TRACK_SSAFY,
+                   "half_road_limit 12.25 should be SSAFY");
+        assertTrue(MyCar.detectTrackType(8.25f) == MyCar.TRACK_GERMANY,
+                   "half_road_limit 8.25 should be GERMANY");
+        assertTrue(MyCar.detectTrackType(9.25f) == MyCar.TRACK_BASIC,
+                   "half_road_limit 9.25 should be BASIC");
+        assertTrue(MyCar.detectTrackType(9.0f) == MyCar.TRACK_BASIC,
+                   "half_road_limit 9.0 boundary should be BASIC");
+        assertTrue(MyCar.detectTrackType(11.1f) == MyCar.TRACK_SSAFY,
+                   "half_road_limit 11.1 should be SSAFY");
+        System.out.println("PASS: track detection");
     }
 
     static void assertTrue(boolean condition, String message) {
