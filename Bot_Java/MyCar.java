@@ -102,6 +102,19 @@ public class MyCar {
         return arr;
     }
 
+    // --- Obstacle avoidance ---
+    static float computeObstacleAvoidance(java.util.ArrayList<DrivingInterface.ObstaclesInfo> obstacles,
+                                          float halfRoadLimit) {
+        float avoidSteer = 0f;
+        for (DrivingInterface.ObstaclesInfo obs : obstacles) {
+            if (obs.dist > 40f) continue;
+            float proximity = 1.0f - (obs.dist / 40f);        // 0=far, 1=very close
+            float lateral   = obs.to_middle / halfRoadLimit;  // +1=right, -1=left
+            avoidSteer -= proximity * lateral * 1.2f;          // steer opposite side
+        }
+        return clamp(avoidSteer, -1.0f, 1.0f);
+    }
+
     // --- Track detection helper ---
     static int detectTrackType(float halfRoadLimit) {
         if (halfRoadLimit > 11.0f) return TRACK_SSAFY;
@@ -112,6 +125,7 @@ public class MyCar {
     // --- State ---
     private boolean trackInitialized = false;
     private int trackType = TRACK_BASIC;
+    private int recoveryTicks = 0;
 
     // --- Lap logger ---
     private PrintWriter logWriter = null;
@@ -196,7 +210,20 @@ public class MyCar {
             angles, p
         );
 
+        // Obstacle avoidance: blend avoidance signal into steering
+        float avoidSteer = computeObstacleAvoidance(sensing_info.track_forward_obstacles,
+                                                    sensing_info.half_road_limit);
+        car_controls.steering = clamp(car_controls.steering + avoidSteer, -1.0f, 1.0f);
+
         applySpeedControl(sensing_info.speed, angles, p);
+
+        // Collision recovery: brake hard for 20 ticks (~2s) after impact
+        if (sensing_info.collided) recoveryTicks = 20;
+        if (recoveryTicks > 0) {
+            car_controls.throttle = 0.1f;
+            car_controls.brake    = 0.6f;
+            recoveryTicks--;
+        }
 
         if(is_debug) {
             System.out.println("[MyCar] steering:"+car_controls.steering+
