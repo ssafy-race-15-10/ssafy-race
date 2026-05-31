@@ -104,14 +104,24 @@ public class MyCar {
     // --- Obstacle avoidance ---
     static float computeObstacleAvoidance(java.util.ArrayList<DrivingInterface.ObstaclesInfo> obstacles,
                                           float halfRoadLimit) {
-        float avoidSteer = 0f;
+        DrivingInterface.ObstaclesInfo nearest = null;
         for (DrivingInterface.ObstaclesInfo obs : obstacles) {
-            if (obs.dist > 40f) continue;
-            float proximity = 1.0f - (obs.dist / 40f);        // 0=far, 1=very close
-            float lateral   = obs.to_middle / halfRoadLimit;  // +1=right, -1=left
-            avoidSteer -= proximity * lateral * 1.2f;          // steer opposite side
+            if (obs.dist < 25f && (nearest == null || obs.dist < nearest.dist)) {
+                nearest = obs;
+            }
         }
-        return clamp(avoidSteer, -1.0f, 1.0f);
+        if (nearest == null) return 0f;
+        float proximity = 1.0f - (nearest.dist / 25f);
+        float lateral   = nearest.to_middle / halfRoadLimit;
+        return clamp(-2.0f * proximity * lateral, -1.0f, 1.0f);
+    }
+
+    static float nearestObstacleDist(java.util.ArrayList<DrivingInterface.ObstaclesInfo> obstacles) {
+        float min = -1f;
+        for (DrivingInterface.ObstaclesInfo obs : obstacles) {
+            if (min < 0f || obs.dist < min) min = obs.dist;
+        }
+        return min;
     }
 
     static float computeObstacleSpeedCap(java.util.ArrayList<DrivingInterface.ObstaclesInfo> obstacles,

@@ -155,7 +155,36 @@ public class TestRunner {
         assertTrue(Math.abs(c4 - 104f) < 0.01f,
                    "Obstacle at 20m: cap should be 104.0, got: " + c4);
 
-        System.out.println("PASS: obstacle speed cap");
+        // Avoidance steering: no obstacles → 0
+        float a1 = MyCar.computeObstacleAvoidance(none, 9.25f);
+        assertTrue(a1 == 0f, "No obstacles: avoidance should be 0, got: " + a1);
+
+        // Obstacle at 25m → proximity=0, avoidance=0
+        java.util.ArrayList<DrivingInterface.ObstaclesInfo> edge = new java.util.ArrayList<>();
+        DrivingInterface.ObstaclesInfo oe = new DrivingInterface.ObstaclesInfo();
+        oe.dist = 25f; oe.to_middle = 5f;
+        edge.add(oe);
+        float a2 = MyCar.computeObstacleAvoidance(edge, 9.25f);
+        assertTrue(a2 == 0f, "Obstacle at exactly 25m: avoidance should be 0, got: " + a2);
+
+        // Obstacle at 0m, to_middle=+9.25 (far right) → steer left (negative), clamped to -1.0
+        java.util.ArrayList<DrivingInterface.ObstaclesInfo> rightObs = new java.util.ArrayList<>();
+        DrivingInterface.ObstaclesInfo or1 = new DrivingInterface.ObstaclesInfo();
+        or1.dist = 0f; or1.to_middle = 9.25f;
+        rightObs.add(or1);
+        float a3 = MyCar.computeObstacleAvoidance(rightObs, 9.25f);
+        assertTrue(a3 < 0f, "Obstacle hard right at 0m: avoidance should be negative (steer left), got: " + a3);
+        assertTrue(Math.abs(a3 - (-1.0f)) < 0.001f, "Obstacle hard right at 0m: should clamp to -1.0, got: " + a3);
+
+        // Obstacle at 0m, to_middle=-9.25 (far left) → steer right (positive)
+        java.util.ArrayList<DrivingInterface.ObstaclesInfo> leftObs = new java.util.ArrayList<>();
+        DrivingInterface.ObstaclesInfo ol1 = new DrivingInterface.ObstaclesInfo();
+        ol1.dist = 0f; ol1.to_middle = -9.25f;
+        leftObs.add(ol1);
+        float a4 = MyCar.computeObstacleAvoidance(leftObs, 9.25f);
+        assertTrue(a4 > 0f, "Obstacle hard left at 0m: avoidance should be positive (steer right), got: " + a4);
+
+        System.out.println("PASS: obstacle avoidance steering");
     }
 
     static void assertTrue(boolean condition, String message) {
