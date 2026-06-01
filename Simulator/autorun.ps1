@@ -1,7 +1,7 @@
 param(
     [int]$Runs    = 5,
     [int]$Warmup  = 8,
-    [int]$Cooldown = 2
+    [int]$Cooldown = 6
 )
 
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
@@ -76,8 +76,12 @@ try {
             Write-Warning "Run $i ended with non-zero exit code: $($java.ExitCode)"
         }
 
-        # 3. 시뮬레이터 종료
+        # 3. 시뮬레이터 종료 — 프로세스가 완전히 사라질 때까지 대기
         Stop-Process -Name "Algo" -Force -ErrorAction SilentlyContinue
+        $waited = 0
+        while ((Get-Process -Name "Algo" -ErrorAction SilentlyContinue) -and $waited -lt 10) {
+            Start-Sleep -Seconds 1; $waited++
+        }
         Write-Host "Algo stopped. Waiting ${Cooldown}s..."
         Start-Sleep -Seconds $Cooldown
     }
