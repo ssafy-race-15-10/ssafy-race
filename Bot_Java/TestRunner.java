@@ -18,23 +18,23 @@ public class TestRunner {
         assertTrue(basic.slowdownFactor == 0.8f,   "BASIC slowdownFactor");
         assertTrue(basic.steerLookAhead == 5,      "BASIC steerLookAhead");
         assertTrue(basic.speedLookAhead == 6,      "BASIC speedLookAhead");
-        assertTrue(basic.K_stanley == 3.0f,        "BASIC K_stanley");
+        assertTrue(basic.K_stanley == 5.0f,        "BASIC K_stanley");
         assertTrue(basic.K3 == 0.35f,             "BASIC K3");
         assertTrue(basic.brakeRange == 40f,        "BASIC brakeRange");
 
         MyCar.TrackParams speed = MyCar.PARAMS[MyCar.TRACK_SPEED];
         assertTrue(speed.maxSpeed == 120f,         "SPEED maxSpeed");
-        assertTrue(speed.K_stanley == 2.5f,        "SPEED K_stanley");
+        assertTrue(speed.K_stanley == 4.0f,        "SPEED K_stanley");
 
         MyCar.TrackParams ssafy = MyCar.PARAMS[MyCar.TRACK_SSAFY];
         assertTrue(ssafy.maxSpeed == 110f,         "SSAFY maxSpeed");
         assertTrue(ssafy.decayFactor == 0.3f,      "SSAFY decayFactor");
-        assertTrue(ssafy.K_stanley == 2.0f,        "SSAFY K_stanley");
+        assertTrue(ssafy.K_stanley == 3.0f,        "SSAFY K_stanley");
 
         MyCar.TrackParams germany = MyCar.PARAMS[MyCar.TRACK_GERMANY];
         assertTrue(germany.maxSpeed == 100f,       "GERMANY maxSpeed");
         assertTrue(germany.K3 == 0.40f,           "GERMANY K3");
-        assertTrue(germany.K_stanley == 3.5f,      "GERMANY K_stanley");
+        assertTrue(germany.K_stanley == 5.5f,      "GERMANY K_stanley");
         assertTrue(germany.brakeRange == 30f,      "GERMANY brakeRange");
 
         System.out.println("PASS: TrackParams");
@@ -51,12 +51,12 @@ public class TestRunner {
         System.out.println("  straight+centered: " + s1);
 
         // s2: 오른쪽 5m 이탈, 36km/h → 음수 (왼쪽 보정)
-        // centering = -atan(3.0*5/10.0)/(π/2) = -0.626
+        // centering = -atan(5.0*5/10.0)/(π/2) = -0.758
         float s2 = MyCar.computeSteering(5f, 9.25f, 0f, 36f, straight, p);
         assertTrue(s2 < 0,
                    "Car right of center should steer left, got: " + s2);
-        assertTrue(Math.abs(s2 - (-0.626f)) < 0.01f,
-                   "Right 5m at 36km/h: expected ~-0.626, got: " + s2);
+        assertTrue(Math.abs(s2 - (-0.758f)) < 0.01f,
+                   "Right 5m at 36km/h: expected ~-0.758, got: " + s2);
         System.out.println("  right of center:   " + s2);
 
         // s3: 전방 우커브 → 양수

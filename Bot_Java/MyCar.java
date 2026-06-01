@@ -40,13 +40,13 @@ public class MyCar {
 
     static final TrackParams[] PARAMS = {
         // BASIC:   maxSpd  minSpd slow  stLA spLA  Kstan  K3    decay  accR  brkR
-        new TrackParams(130f, 40f, 0.8f,  5,  6, 3.0f, 0.35f, 0.4f, 30f, 40f),
+        new TrackParams(130f, 40f, 0.8f,  5,  6, 5.0f, 0.35f, 0.4f, 30f, 40f),
         // SPEED
-        new TrackParams(120f, 35f, 0.9f,  6,  7, 2.5f, 0.35f, 0.4f, 30f, 40f),
+        new TrackParams(120f, 35f, 0.9f,  6,  7, 4.0f, 0.35f, 0.4f, 30f, 40f),
         // SSAFY
-        new TrackParams(110f, 30f, 1.0f,  7,  8, 2.0f, 0.35f, 0.3f, 25f, 35f),
+        new TrackParams(110f, 30f, 1.0f,  7,  8, 3.0f, 0.35f, 0.3f, 25f, 35f),
         // GERMANY
-        new TrackParams(100f, 25f, 1.2f,  8, 10, 3.5f, 0.40f, 0.5f, 20f, 30f)
+        new TrackParams(100f, 25f, 1.2f,  8, 10, 5.5f, 0.40f, 0.5f, 20f, 30f)
     };
 
     // --- Steering helpers ---
@@ -258,8 +258,7 @@ public class MyCar {
         if (reverseTicks > 0) {
             car_controls.throttle = -0.5f;
             car_controls.brake    = 0f;
-            car_controls.steering = clamp(-(sensing_info.to_middle / sensing_info.half_road_limit),
-                                          -1.0f, 1.0f);
+            car_controls.steering = 0f;
             reverseTicks--;
             if (reverseTicks == 0) {
                 stuckTicks = 0;
