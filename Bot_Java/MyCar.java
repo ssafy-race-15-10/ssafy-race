@@ -163,6 +163,8 @@ public class MyCar {
     private int trackType = TRACK_BASIC;
     private int stuckTicks   = 0;
     private int reverseTicks = 0;
+    private float prevCenterError = 0f;
+    private float prevSteering    = 0f;
 
     // --- Lap logger ---
     PrintWriter logWriter = null;
@@ -240,12 +242,13 @@ public class MyCar {
         TrackParams p = PARAMS[trackType];
         float[] angles = toFloatArray(sensing_info.track_forward_angles);
 
+        float centerError = -(sensing_info.to_middle / sensing_info.half_road_limit);
         car_controls.steering = computeSteering(
             sensing_info.to_middle,
             sensing_info.half_road_limit,
             sensing_info.moving_angle,
             angles, p,
-            0f, 0f
+            prevCenterError, prevSteering
         );
 
         // Obstacle avoidance: blend avoidance signal into steering
@@ -270,7 +273,12 @@ public class MyCar {
                 System.out.printf("[REVERSE] DONE at progress=%.1f%n", sensing_info.lap_progress);
                 logEvent(String.format("# REVERSE DONE at progress=%.1f", sensing_info.lap_progress));
             }
+            // 역방향 중: EMA 상태 갱신 건너뜀 (후진 steering이 정상 주행 EMA를 오염하지 않도록)
         } else {
+            // EMA 상태 갱신
+            prevSteering    = car_controls.steering;
+            prevCenterError = centerError;
+
             if (sensing_info.lap_progress > 1f && isStuck(sensing_info.speed, car_controls.throttle)) {
                 stuckTicks++;
                 if (stuckTicks == 5) {
