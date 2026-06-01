@@ -38,13 +38,22 @@ Simulator/
 PowerShell -ExecutionPolicy Bypass -File autorun.ps1 -Runs 5
 ```
 
+## Directory Layout
+
+```
+$PSScriptRoot           = Simulator/        (autorun.ps1 위치)
+$PSScriptRoot\..\Bot_Java = Bot_Java/       (MyCar.class, DrivingInterface/ 위치)
+```
+
+`Start-Process`의 `-WorkingDirectory`로 두 프로세스를 각자 올바른 디렉터리에서 실행한다.
+
 ## Loop Flow (1 iteration)
 
 ```
 1. "=== Run i/N ===" 출력
-2. Start-Process Algo.exe -ArgumentList "-ResX=640 -ResY=480 -windowed"
+2. Start-Process "$PSScriptRoot\Algo.exe" -ArgumentList "-ResX=640 -ResY=480 -windowed"
 3. Start-Sleep $Warmup
-4. Start-Process java -ArgumentList "-cp .;DrivingInterface -Djava.library.path=DrivingInterface MyCar" -WorkingDirectory $BotJavaDir -Wait -PassThru
+4. Start-Process java -ArgumentList "-cp .;DrivingInterface -Djava.library.path=DrivingInterface MyCar" -WorkingDirectory "$PSScriptRoot\..\Bot_Java" -Wait -PassThru
 5. 종료 코드(ExitCode) 콘솔 출력
 6. Stop-Process -Name Algo -Force -ErrorAction SilentlyContinue
 7. Start-Sleep $Cooldown
