@@ -1,6 +1,6 @@
 param(
     [int]$Runs    = 5,
-    [int]$Warmup  = 3,
+    [int]$Warmup  = 8,
     [int]$Cooldown = 2
 )
 
