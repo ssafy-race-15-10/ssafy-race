@@ -50,9 +50,9 @@ public class MyCar {
     };
 
     // --- Steering helpers ---
-    static float computeLookaheadAngle(float[] angles, TrackParams p) {
+    static float computeLookaheadAngle(float[] angles, int len, TrackParams p) {
         double wSum = 0, aSum = 0;
-        int n = Math.min(p.steerLookAhead, angles.length);
+        int n = Math.min(p.steerLookAhead, len);
         for (int i = 0; i < n; i++) {
             double w = Math.exp(-i * p.decayFactor);
             aSum += angles[i] * w;
@@ -64,11 +64,11 @@ public class MyCar {
     // Stanley controller: heading error + speed-adaptive cross-track correction + lookahead
     static float computeSteering(float toMiddle, float halfRoadLimit,
                                   float movingAngle, float speed,
-                                  float[] angles, TrackParams p) {
+                                  float[] angles, int anglesLen, TrackParams p) {
         float heading   = -(movingAngle / 90.0f);
         float speedMs   = Math.max(speed / 3.6f, 3.0f);
         float centering = -(float)(Math.atan(p.K_stanley * toMiddle / speedMs) / (Math.PI / 2.0));
-        float lookahead = computeLookaheadAngle(angles, p);
+        float lookahead = computeLookaheadAngle(angles, anglesLen, p);
         return clamp(heading + centering + p.K3 * lookahead, -1.0f, 1.0f);
     }
 
@@ -76,9 +76,9 @@ public class MyCar {
         return Math.max(min, Math.min(max, v));
     }
 
-    static float computeTargetSpeed(float[] angles, TrackParams p) {
+    static float computeTargetSpeed(float[] angles, int len, TrackParams p) {
         float maxCurve = 0;
-        int n = Math.min(p.speedLookAhead, angles.length);
+        int n = Math.min(p.speedLookAhead, len);
         for (int i = 0; i < n; i++) {
             maxCurve = Math.max(maxCurve, Math.abs(angles[i]));
         }
@@ -94,12 +94,6 @@ public class MyCar {
             car_controls.throttle = 0f;
             car_controls.brake    = Math.min(1.0f, -diff / p.brakeRange);
         }
-    }
-
-    static float[] toFloatArray(java.util.ArrayList<Float> list) {
-        float[] arr = new float[list.size()];
-        for (int i = 0; i < list.size(); i++) arr[i] = list.get(i);
-        return arr;
     }
 
     // --- Obstacle avoidance ---
@@ -140,7 +134,6 @@ public class MyCar {
     private void logEvent(String msg) {
         if (logWriter != null) {
             logWriter.println(msg);
-            logWriter.flush();
         }
     }
 
@@ -156,6 +149,9 @@ public class MyCar {
     private int trackType = TRACK_BASIC;
     private int stuckTicks   = 0;
     private int reverseTicks = 0;
+
+    // angles 버퍼 — 매 tick 재사용 (GC 절감)
+    private float[] anglesBuffer = new float[0];
 
     // --- Lap logger ---
     PrintWriter logWriter = null;
@@ -231,7 +227,11 @@ public class MyCar {
         }
 
         TrackParams p = PARAMS[trackType];
-        float[] angles = toFloatArray(sensing_info.track_forward_angles);
+
+        // angles 버퍼 재사용 — ArrayList → float[] 변환 시 allocation 없음
+        int anglesLen = sensing_info.track_forward_angles.size();
+        if (anglesBuffer.length < anglesLen) anglesBuffer = new float[anglesLen];
+        for (int i = 0; i < anglesLen; i++) anglesBuffer[i] = sensing_info.track_forward_angles.get(i);
 
         float centerError = -(sensing_info.to_middle / sensing_info.half_road_limit);
         float baseSteer = computeSteering(
@@ -239,7 +239,7 @@ public class MyCar {
             sensing_info.half_road_limit,
             sensing_info.moving_angle,
             sensing_info.speed,
-            angles, p
+            anglesBuffer, anglesLen, p
         );
         car_controls.steering = baseSteer;
 
@@ -249,7 +249,7 @@ public class MyCar {
         car_controls.steering = clamp(car_controls.steering + avoidSteer, -1.0f, 1.0f);
 
         float speedCap    = computeObstacleSpeedCap(sensing_info.track_forward_obstacles, p.maxSpeed);
-        float targetSpeed = Math.min(computeTargetSpeed(angles, p), speedCap);
+        float targetSpeed = Math.min(computeTargetSpeed(anglesBuffer, anglesLen, p), speedCap);
         if (Math.abs(centerError) > 0.8f) targetSpeed = Math.min(targetSpeed, 0.4f * p.maxSpeed);
         applySpeedControl(sensing_info.speed, targetSpeed, p);
         float nearestDist = nearestObstacleDist(sensing_info.track_forward_obstacles);
@@ -262,7 +262,6 @@ public class MyCar {
             reverseTicks--;
             if (reverseTicks == 0) {
                 stuckTicks = 0;
-                System.out.printf("[REVERSE] DONE at progress=%.1f%n", sensing_info.lap_progress);
                 logEvent(String.format("# REVERSE DONE at progress=%.1f", sensing_info.lap_progress));
             }
         } else {
@@ -270,21 +269,13 @@ public class MyCar {
                 stuckTicks++;
                 if (stuckTicks == 5) {
                     reverseTicks = 20;
-                    System.out.printf("[STUCK] progress=%.1f speed=%.1f%n",
-                                      sensing_info.lap_progress, sensing_info.speed);
                     logEvent(String.format("# STUCK at progress=%.1f speed=%.1f",
                                           sensing_info.lap_progress, sensing_info.speed));
-                    System.out.printf("[REVERSE] START at progress=%.1f%n", sensing_info.lap_progress);
                     logEvent(String.format("# REVERSE START at progress=%.1f", sensing_info.lap_progress));
                 }
             } else {
                 stuckTicks = 0;
             }
-        }
-
-        if(is_debug) {
-            System.out.println("[MyCar] steering:"+car_controls.steering+
-                                     ", throttle:"+car_controls.throttle+", brake:"+car_controls.brake);
         }
 
         // --- Lap logging ---
@@ -295,12 +286,11 @@ public class MyCar {
                 logsDir.mkdirs();
                 String ts = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
                 File logFile = new File(logsDir, "run_" + ts + ".csv");
-                logWriter = new PrintWriter(new FileWriter(logFile));
+                logWriter = new PrintWriter(new BufferedWriter(new FileWriter(logFile)));
                 logWriter.println("tick,lap,progress,speed,to_middle,moving_angle," +
                                   "steering,throttle,brake,collided," +
                                   "obs_count,obs_nearest_dist,target_speed," +
                                   "stuck_ticks,reverse_ticks,elapsed_ms");
-                logWriter.flush();
                 lapStartTime = System.currentTimeMillis();
                 System.out.println("[LOG] Writing to: " + logFile.getAbsolutePath());
             } catch (IOException e) {
@@ -321,19 +311,19 @@ public class MyCar {
                 targetSpeed,
                 stuckTicks, reverseTicks,
                 elapsed);
-            logWriter.flush();
+
+            // 10tick(1초)마다 flush — BufferedWriter로 I/O 비용 절감
+            if (tickCount % 10 == 0) logWriter.flush();
+
             if (nearestDist >= 0f && nearestDist < 15f) {
-                float avoidLogged = computeObstacleAvoidance(sensing_info.track_forward_obstacles,
-                                                             sensing_info.half_road_limit);
                 logEvent(String.format("# OBSTACLE CLOSE: dist=%.1f avoid_steer=%.3f",
-                                       nearestDist, avoidLogged));
+                                       nearestDist, avoidSteer));
             }
 
             if (lastProgress > 90f && sensing_info.lap_progress < 10f) {
                 lapCount++;
                 logWriter.printf("# LAP %d COMPLETE: %.2fs%n", lapCount, elapsed / 1000.0);
-                System.out.printf("[LAP %d] %.2fs%n", lapCount, elapsed / 1000.0);
-                lapStartTime = System.currentTimeMillis();
+                logWriter.flush();
             }
             lastProgress = sensing_info.lap_progress;
         }
