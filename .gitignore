@@ -17,4 +17,6 @@
 Build/
 
 # Simulator binaries (large, Windows-only)
-Simulator/
+Simulator/*
+!Simulator/*.ps1
+!Simulator/*.md
