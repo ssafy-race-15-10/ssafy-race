@@ -1,11 +1,11 @@
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-$OutputEncoding = [System.Text.Encoding]::UTF8
-
 param(
     [int]$Runs    = 5,
     [int]$Warmup  = 3,
     [int]$Cooldown = 2
 )
+
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$OutputEncoding = [System.Text.Encoding]::UTF8
 
 $AlgoExe    = "$PSScriptRoot\Algo.exe"
 $BotJavaDir = Resolve-Path "$PSScriptRoot\..\Bot_Java"
